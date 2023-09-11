@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+  database:
+    image: mongo:latest
+    restart: unless-stopped
+    env_file:
+      - '.env'
+    # environment:
+    # - MONGO_INITDB_ROOT_USERNAME=${DATABASE_USER}
+    # - MONGO_INITDB_ROOT_PASSWORD=${DATABASE_PASS}
+    # - MONGO_INITDB_DATABASE=${DATABASE_NAME}
+    # - MONGODB_USER=${DATABASE_USER}
+    # - MONGODB_PASS=${DATABASE_PASS}
+    # - MONGO_INITDB_ROOT_USERNAME=admin
+    # - MONGO_INITDB_ROOT_PASSWORD=admin
+    # - MONGO_INITDB_DATABASE=migration
+    # - MONGODB_USER="test"
+    # - MONGODB_PASS="test"
+    ports:
+      - '${DATABASE_PORT}:27017'
+    volumes:
+      - mongodb:/data/db
+      # TODO admin mongo web
+      # adminmongo:
+      #   container_name: docker_adminmongo_container
+      #   image: mrvautin/adminmongo
+      #   links:
+      #     - database
+      #   environment:
+      #     - HOST=0.0.0.0
+      #   ports:
+      #     - '1234:1234'
+
+volumes:
+  mongodb:

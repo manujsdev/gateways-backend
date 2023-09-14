@@ -12,9 +12,9 @@ export function buildSorting<Entity>(sorts: string) {
   return sort;
 }
 
-export function buildFilter(filters: string) {
+export function buildFilter(filters?: string) {
   const filter = {} as any;
-  const convertedFilter = JSON.parse(filters) || [];
+  const convertedFilter = filters ? JSON.parse(filters) : [];
   convertedFilter.forEach(
     (filtering: any) =>
       (filter[getSchemaKey(filtering.field.toString())] = {

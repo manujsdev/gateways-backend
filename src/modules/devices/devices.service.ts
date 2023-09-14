@@ -7,6 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ListDevicesDto } from './dto/list-devices.dto';
 import { buildFilter, buildSorting } from 'src/core/helpers/filter-query';
 
+// TODO Check this repository: https://github.com/scalablescripts/nest-search-mongo/blob/main/src/product/product.service.ts
+
 @Injectable()
 export class DevicesService {
   constructor(@InjectModel(Device.name) private deviceModel: Model<Device>) {}
@@ -32,7 +34,10 @@ export class DevicesService {
 
   async findAll(listDevicesDto: ListDevicesDto<Device>) {
     const { pageSize = 10, page = 0, sort, filter } = listDevicesDto;
-    const sorting = buildSorting<Device>(sort as unknown as string);
+    const sorting = sort
+      ? buildSorting<Device>(sort as unknown as string)
+      : { _id: 'asc' };
+
     const filtering = buildFilter(filter as unknown as string);
 
     const total = await this.deviceModel.estimatedDocumentCount();
@@ -40,7 +45,7 @@ export class DevicesService {
       .find(filtering)
       //.select('vendor')
       .limit(pageSize)
-      .skip(page > 0 ? page - 1 : page)
+      .skip((page > 0 ? page - 1 : page) * pageSize)
       .sort(sorting)
       .exec();
 

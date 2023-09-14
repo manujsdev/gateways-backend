@@ -13,7 +13,9 @@ import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { ListDevicesDto } from './dto/list-devices.dto';
 import { Device } from './schemas/device.schema';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Devices')
 @Controller({ path: 'devices', version: '1' })
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}

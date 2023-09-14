@@ -4,8 +4,11 @@ import { UpdateDeviceDto } from './dto/update-device.dto';
 import { Device } from './schemas/device.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ListDevicesDto } from './dto/list-devices.dto';
-import { buildFilter, buildSorting } from 'src/core/helpers/filter-query';
+import { getOrder, getWhere } from 'src/core/helpers/filter-query';
+import { Pagination } from 'src/core/decorators/pagination.decorator';
+import { Sorting } from 'src/core/decorators/sorting.decorator';
+import { Filtering } from 'src/core/decorators/filtering.decorator';
+import { PaginatedResource } from 'src/core/dto/paginatedItems.dto';
 
 // TODO Check this repository: https://github.com/scalablescripts/nest-search-mongo/blob/main/src/product/product.service.ts
 
@@ -32,27 +35,33 @@ export class DevicesService {
     }
   }
 
-  async findAll(listDevicesDto: ListDevicesDto<Device>) {
-    const { pageSize = 10, page = 0, sort, filter } = listDevicesDto;
-    const sorting = sort
-      ? buildSorting<Device>(sort as unknown as string)
-      : { _id: 'asc' };
+  async findAll(
+    { page, pageSize, offset }: Pagination,
+    sort?: Sorting,
+    filter?: Filtering,
+  ): Promise<PaginatedResource<Partial<Device>>> {
+    const where = getWhere(filter);
+    const order = getOrder(sort);
+    const total = await this.countTotal();
 
-    const filtering = buildFilter(filter as unknown as string);
-
-    const total = await this.deviceModel.estimatedDocumentCount();
     const items = await this.deviceModel
-      .find(filtering)
+      .find(where)
       //.select('vendor')
       .limit(pageSize)
-      .skip((page > 0 ? page - 1 : page) * pageSize)
-      .sort(sorting)
+      .skip(offset)
+      .sort(order)
       .exec();
 
     return {
-      items,
       total,
+      page,
+      pageSize,
+      data: items,
     };
+  }
+
+  async countTotal() {
+    return await this.deviceModel.estimatedDocumentCount().exec();
   }
 
   findOne(id: number) {

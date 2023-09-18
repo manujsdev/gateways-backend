@@ -12,7 +12,7 @@ export type DeviceDocument = HydratedDocument<Device>;
 
 @Schema({
   collection: 'devices',
-  timestamps: true,
+  timestamps: true
 })
 export class Device {
   _id?: string;

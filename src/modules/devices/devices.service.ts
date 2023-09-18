@@ -4,17 +4,14 @@ import { UpdateDeviceDto } from './dto/update-device.dto';
 import { Device } from './schemas/device.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { getOrder, getWhere } from 'src/core/helpers/filter-query';
-import { Pagination } from 'src/core/decorators/pagination.decorator';
-import { Sorting } from 'src/core/decorators/sorting.decorator';
-import { Filtering } from 'src/core/decorators/filtering.decorator';
-import { PaginatedResource } from 'src/core/dto/paginatedItems.dto';
 
-// TODO Check this repository: https://github.com/scalablescripts/nest-search-mongo/blob/main/src/product/product.service.ts
+import { CoreService } from 'src/core/core.service';
 
 @Injectable()
-export class DevicesService {
-  constructor(@InjectModel(Device.name) private deviceModel: Model<Device>) {}
+export class DevicesService extends CoreService<Device> {
+  constructor(@InjectModel(Device.name) protected readonly deviceModel: Model<Device>) {
+    super(deviceModel);
+  }
 
   async create(createDeviceDto: CreateDeviceDto) {
     console.log(createDeviceDto);
@@ -25,39 +22,14 @@ export class DevicesService {
       throw new HttpException(
         {
           error,
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          status: HttpStatus.UNPROCESSABLE_ENTITY
         },
         HttpStatus.UNPROCESSABLE_ENTITY,
         {
-          cause: error,
-        },
+          cause: error
+        }
       );
     }
-  }
-
-  async findAll(
-    { page, pageSize, offset }: Pagination,
-    sort?: Sorting,
-    filter?: Filtering,
-  ): Promise<PaginatedResource<Partial<Device>>> {
-    const where = getWhere(filter);
-    const order = getOrder(sort);
-    const total = await this.countTotal();
-
-    const items = await this.deviceModel
-      .find(where)
-      //.select('vendor')
-      .limit(pageSize)
-      .skip(offset)
-      .sort(order)
-      .exec();
-
-    return {
-      total,
-      page,
-      pageSize,
-      data: items,
-    };
   }
 
   async countTotal() {

@@ -15,7 +15,7 @@ export type SortType =
 
 export enum SortDirection {
   ASC = 'ASC',
-  DESC = 'DESC',
+  DESC = 'DESC'
 }
 
 export type SortDirectionType = 'ASC' | 'DESC';

@@ -4,10 +4,10 @@ import { StatusType } from '../types';
 export class CreateDeviceDto {
   //uid: string;
   @ApiProperty({ description: 'The vendor of the device' })
-  vendor: string;
+  readonly vendor: string;
   @ApiProperty({
     description: 'The status of the device',
-    enum: ['online', 'offline'],
+    enum: ['online', 'offline']
   })
-  status: StatusType;
+  readonly status: StatusType;
 }
